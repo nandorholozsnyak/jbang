@@ -1,0 +1,87 @@
+{#if catalog.baseRef}
+## {catalog.baseRef}
+{/if}
+{#if catalog.description}
+### {catalog.description}
+{/if}
+
+<p align="center">
+  <img src="{catalogLogo or 'https://raw.githubusercontent.com/jbangdev/jbang/main/images/jbang_logo.svg'}">
+</p>
+
+### Catalogs
+{#for catalog in catalog.catalogs.orEmpty}
+
+Catalog reference: {catalog.value.catalogRef}
+Description: {catalog.value.description}
+---
+
+{/for}
+
+### Aliases
+{#for alias in catalog.aliases.orEmpty}
+##### {alias.key}
+###### Usage: `jbang {alias.key} [args...]`
+**Script reference**: {alias.value.scriptRef}
+{#if alias.description}
+    **Description**: {alias.description}
+{/if}
+{#if alias.arguments}
+    **Arguments**:\
+    {#for argument in alias.arguments.orEmpty}
+    - {argument}
+    {/for}
+{/if}
+{#if alias.javaOptions}
+    **Java options**:\
+    {#for javaOption in alias.javaOptions.orEmpty}
+    - {javaOption}
+    {/for}
+{/if}
+{#if alias.dependencies}
+**Dependencies**:\
+{#for dependency in alias.dependencies.orEmpty}
+- {dependency}
+{/for}
+{/if}
+{#if alias.repositories}
+**Repositories**:\
+{#for repository in alias.repositories.orEmpty}
+- {repository}
+{/for}
+{/if}
+{#if alias.classpaths}
+**Class paths**:\
+{#for classpath in alias.classpaths.orEmpty}
+- {classpath}
+{/for}
+{/if}
+{#if alias.properties}
+**Properties**:\
+{#for property in alias.properties.orEmpty}
+- {property}
+{/for}
+{/if}
+{#if alias.javaVersion}
+**Java version**: {alias.javaVersion} \
+{/if}
+{#if alias.mainClass}
+**Main class**: {alias.mainClass or ''}
+{/if}
+---
+
+{/for}
+
+### Templates
+{#for template in catalog.templates.orEmpty}
+##### {template.key}
+###### Usage: `jbang init -t={template.key} script.java [args...]`
+{#if template.description}
+**Description**: {template.description}
+{/if}
+**File references**:
+{#for templateFileRef in template.value.fileRefs.orEmpty}
+- *{templateFileRef.key}* - {templateFileRef.value}
+{/for}
+---
+{/for}

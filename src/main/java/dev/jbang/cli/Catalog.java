@@ -1,5 +1,7 @@
 package dev.jbang.cli;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -13,12 +15,15 @@ import dev.jbang.catalog.CatalogRef;
 import dev.jbang.catalog.CatalogUtil;
 import dev.jbang.source.ResourceRef;
 import dev.jbang.util.ConsoleOutput;
+import dev.jbang.util.TemplateEngine;
 import dev.jbang.util.Util;
 
+import io.quarkus.qute.Template;
+import org.apache.commons.lang3.StringUtils;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "catalog", description = "Manage Catalogs of aliases.", subcommands = { CatalogAdd.class,
-		CatalogUpdate.class, CatalogList.class, CatalogRemove.class })
+		CatalogUpdate.class, CatalogList.class, CatalogRemove.class, CatalogDocumentation.class })
 public class Catalog {
 }
 
@@ -217,4 +222,50 @@ class CatalogRemove extends BaseCatalogCommand {
 		}
 		return EXIT_OK;
 	}
+}
+
+@CommandLine.Command(name = "documentation", description = "Generates a documentation page about the catalog")
+class CatalogDocumentation extends BaseCatalogCommand {
+
+    private static final String TEMPLATE_CATALOG_MD_QUTE = "catalog.md.qute";
+
+    @CommandLine.Option(names = { "-O","--output" }, description = "Output file name", defaultValue = "catalog.md")
+	String output;
+
+    @CommandLine.Option(names = { "--template"}, description = "Template", defaultValue = TEMPLATE_CATALOG_MD_QUTE)
+    String template;
+
+	@CommandLine.Option(names = { "--catalog-logo", "-cl"}, description = "Catalog logo to be used in the final documentation")
+	String catalogLogo;
+
+	@Override
+	public Integer doCall() {
+		Path destination = new File(output).toPath();
+		try {
+			renderCatalogDocumentation(TemplateEngine.instance(), destination);
+		} catch (IOException e) {
+			Util.errorMsg("Error during rendeing catalog documentation.");
+		}
+		return EXIT_OK;
+	}
+
+	private void renderCatalogDocumentation(TemplateEngine engine, Path destination)
+			throws IOException {
+        Template template = getCatalogTemplate(engine);
+		Path catalogPath = getCatalog(true);
+		dev.jbang.catalog.Catalog catalog = dev.jbang.catalog.Catalog.get(catalogPath);
+		String result = template
+								.data("catalog", catalog)
+								.data("catalogLogo",catalogLogo)
+								.render();
+
+		Util.writeString(destination, result);
+	}
+
+    private Template getCatalogTemplate(TemplateEngine engine) {
+        Template template = engine.getTemplate(this.template);
+        if (template == null)
+            throw new ExitException(EXIT_INVALID_INPUT, "Could not locate template named: '"+ this.template +"'");
+        return template;
+    }
 }
