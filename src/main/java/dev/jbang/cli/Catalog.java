@@ -227,12 +227,13 @@ class CatalogRemove extends BaseCatalogCommand {
 @CommandLine.Command(name = "documentation", description = "Generates a documentation page about the catalog")
 class CatalogDocumentation extends BaseCatalogCommand {
 
-    private static final String TEMPLATE_CATALOG_MD_QUTE = "catalog.md.qute";
+	private static final String TEMPLATE_CATALOG_MD_QUTE = "catalog.md.qute";
+	private static final String CATALOG_MD = "catalog.md";
 
-    @CommandLine.Option(names = { "-O","--output" }, description = "Output file name", defaultValue = "catalog.md")
+	@CommandLine.Option(names = { "-O","--output" }, description = "Output file name", defaultValue = CATALOG_MD)
 	String output;
 
-    @CommandLine.Option(names = { "--template"}, description = "Template", defaultValue = TEMPLATE_CATALOG_MD_QUTE)
+    @CommandLine.Option(names = { "--template", "-T"}, description = "Template", defaultValue = TEMPLATE_CATALOG_MD_QUTE)
     String template;
 
 	@CommandLine.Option(names = { "--catalog-logo", "-cl"}, description = "Catalog logo to be used in the final documentation")
